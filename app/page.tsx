@@ -1,23 +1,25 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 'use client';
-
-import { useEffect, useRef, useState } from 'react';
-import React from 'react';
 
 declare global {
   interface Window {
-    cv: typeof cv | undefined;
+    cv: any;
   }
 }
 
-type OpenCV = typeof cv;
+
+
+import { useEffect, useRef, useState } from 'react';
+import React from 'react';
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const processVideoRef = useRef<NodeJS.Timeout | null>(null);
   const [isStreaming, setIsStreaming] = useState(true);
-  
-  const [cv, setCv] = useState<OpenCV | null>(null); 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [cv, setCv] = useState<any | null>(null); 
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
@@ -26,7 +28,7 @@ export default function Home() {
     script.src = 'https://docs.opencv.org/4.8.0/opencv.js';
     script.async = true;
     script.onload = () => {
-      setCv(window.cv as OpenCV);
+      setCv(window.cv);
     };
     document.body.appendChild(script);
 
