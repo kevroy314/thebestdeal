@@ -1,4 +1,20 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Deal or No Deal Object Tracking System
+
+This application is a client-side webcam automation system designed to track the movement of objects in the game "Deal or No Deal." Utilizing computer vision techniques, the system leverages optical flow to detect and follow the motion of objects in real-time through a webcam feed.
+
+## Overview
+
+The primary goal of this application is to automate the tracking of objects, such as the briefcases in "Deal or No Deal," by analyzing video input from a webcam. This is achieved using optical flow, a method that calculates the motion of objects between consecutive frames in a video sequence.
+
+### Approach
+
+- **Optical Flow**: The application employs optical flow algorithms to estimate the motion of objects. Optical flow works by detecting changes in pixel intensities between frames, allowing the system to infer the direction and speed of moving objects.
+
+- **Real-Time Processing**: By processing video frames in real-time, the system can provide immediate feedback on object positions, making it suitable for interactive applications like game automation.
+
+- **OpenCV.js**: The application is built using OpenCV.js, a powerful computer vision library that runs in the browser. This allows for efficient image processing and analysis directly on the client side without the need for server-side computation.
+
+This project aims to demonstrate the capabilities of modern web technologies in implementing sophisticated computer vision tasks, providing a foundation for further enhancements and applications in game automation and beyond.
 
 ## Getting Started
 
