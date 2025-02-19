@@ -1,0 +1,8 @@
+captures from webcam and detects movement. now need
+1. start/stop
+2. identify game bounding boxes
+3. capture case numbers
+4. map based on motion estimates
+5. display captured case numbers in new positions
+
+FPS display and warning
