@@ -5,10 +5,9 @@
 declare global {
   interface Window {
     cv: any;
+    cvLoaded: boolean;  // Track if CV is already loaded
   }
 }
-
-
 
 import { useEffect, useRef, useState } from 'react';
 import React from 'react';
@@ -23,19 +22,31 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
-    // Load OpenCV.js
-    const script = document.createElement('script');
-    script.src = 'https://docs.opencv.org/4.8.0/opencv.js';
-    script.async = true;
-    script.onload = () => {
-      setCv(window.cv);
-    };
-    document.body.appendChild(script);
+    // Load OpenCV.js only if not already loaded
+    if (!window.cvLoaded) {
+      console.log('Loading OpenCV.js');
+      const script = document.createElement('script');
+      script.src = 'https://docs.opencv.org/4.8.0/opencv.js';
+      script.async = true;
+      script.onload = () => {
+        console.log('OpenCV.js loaded');
+        window.cvLoaded = true;
+        setCv(window.cv);
+      };
+      document.body.appendChild(script);
 
-    return () => {
-      document.body.removeChild(script);
-    };
+      return () => {
+        // Only remove the script if component unmounts before load
+        if (!window.cvLoaded) {
+          document.body.removeChild(script);
+        }
+      };
+    } else {
+      console.log('OpenCV.js already loaded');
+      setCv(window.cv);
+    }
   }, []);
+
   useEffect(() => {
     console.log("useEffect");
     if (!cv || !videoRef.current || !canvasRef.current) return;
@@ -125,15 +136,17 @@ export default function Home() {
       function processVideo() {
         console.log("processVideo");
         try {
-          if (!isStreaming) {
+          if (!isStreaming || !canvasRef.current) {
+            console.log("Stopping video processing - stream ended or canvas missing");
             // Clean and stop
             prvs.delete(); hsv.delete(); hsv0.delete(); hsv1.delete(); hsv2.delete();
             hsvVec.delete(); frame2.delete(); flow.delete(); flowVec.delete(); next.delete();
             mag.delete(); ang.delete(); rgb.delete();
             return;
           }
-          const begin = Date.now();
 
+          const begin = Date.now();
+          
           // start processing.
           cap.read(frame2);
           cv.cvtColor(frame2, next, cv.COLOR_RGBA2GRAY);
@@ -158,8 +171,6 @@ export default function Home() {
           console.log("processVideo error");
           console.error(err);
           console.log(cv.exceptionFromPtr(err))
-          // const delay = 1000 / FPS - (Date.now() - begin);
-          // processVideoRef = window.setTimeout(processVideo, delay);
         }
       }
 
@@ -167,13 +178,18 @@ export default function Home() {
       processVideo();
 
       cleanup = () => {
+        console.log('Cleaning up camera and processing');
         setIsStreaming(false);
         if (processVideoRef.current) {
           clearTimeout(processVideoRef.current);
         }
         if (videoRef.current?.srcObject) {
           const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-          tracks.forEach(track => track.stop());
+          tracks.forEach(track => {
+            console.log('Stopping track:', track.kind);
+            track.stop();
+          });
+          videoRef.current.srcObject = null;
         }
       };
     }
@@ -181,6 +197,7 @@ export default function Home() {
     setupCamera();
 
     return () => {
+      console.log('Component unmounting, cleaning up');
       if (cleanup) cleanup();
     };
   }, [cv, isStreaming]);
